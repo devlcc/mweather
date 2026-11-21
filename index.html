@@ -1,6 +1,415 @@
-hello! M-weather!
-<br>
-<b>This is second.</b>
-<br>
-<b>This is third.x</b>
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#218c83">
+    <meta
+      name="description"
+      content="澳門即時天氣、紫外線及空氣質量資訊"
+    >
+    <title>澳門即時天氣</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        color: #fff;
+        background: #218c83;
+      }
 
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        min-height: 100dvh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 28px 20px;
+      }
+
+      .weather-card {
+        width: min(100%, 1000px);
+        padding: clamp(24px, 5vw, 42px);
+        border: 1px solid rgb(117 224 211 / 40%);
+        border-radius: 30px;
+        background: rgb(18 119 110 / 42%);
+        box-shadow: 0 16px 38px rgb(10 75 69 / 18%);
+      }
+
+      .date {
+        grid-column: 1 / -1;
+        margin: 0 0 2px;
+        color: rgb(255 255 255 / 84%);
+        font-size: clamp(19px, 3.2vw, 29px);
+        font-weight: 400;
+        letter-spacing: 0.02em;
+      }
+
+      .weather-grid {
+        display: grid;
+        grid-template-columns:
+          minmax(128px, 0.95fr)
+          minmax(132px, 0.9fr)
+          minmax(190px, 1.15fr)
+          minmax(82px, 0.55fr);
+        align-items: center;
+        gap: clamp(18px, 3vw, 34px);
+      }
+
+      .weather-icon-wrap {
+        display: grid;
+        justify-items: center;
+        gap: 8px;
+      }
+
+      .weather-icon-tile {
+        width: min(100%, 174px);
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        border-radius: 28px;
+        background: #fff;
+        box-shadow: 0 5px 12px rgb(8 65 60 / 20%);
+      }
+
+      .weather-icon {
+        width: 82%;
+        height: 82%;
+        object-fit: contain;
+      }
+
+      .weather-description {
+        min-height: 1.4em;
+        color: rgb(255 255 255 / 82%);
+        font-size: 19px;
+      }
+
+      .measurements {
+        display: grid;
+        gap: 12px;
+      }
+
+      .temperature-line {
+        display: flex;
+        align-items: flex-start;
+        gap: 5px;
+        white-space: nowrap;
+      }
+
+      .temperature {
+        font-size: clamp(54px, 8vw, 76px);
+        font-weight: 600;
+        line-height: 0.98;
+        letter-spacing: -0.06em;
+      }
+
+      .unit {
+        padding-top: 5px;
+        font-size: clamp(23px, 3.3vw, 31px);
+        font-weight: 600;
+      }
+
+      .feels-like {
+        justify-self: start;
+        padding: 4px 16px 5px;
+        border-radius: 20px;
+        background: #ffad19;
+        color: #263b32;
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.35;
+      }
+
+      .humidity-line {
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        white-space: nowrap;
+      }
+
+      .humidity {
+        font-size: clamp(43px, 6vw, 63px);
+        font-weight: 600;
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+      }
+
+      .humidity-unit {
+        padding-top: 2px;
+        font-size: clamp(25px, 3.5vw, 34px);
+        font-weight: 600;
+      }
+
+      .wind {
+        min-height: 164px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+        padding-left: clamp(18px, 3vw, 32px);
+        border-left: 1px solid rgb(255 255 255 / 75%);
+      }
+
+      .wind-label {
+        color: rgb(255 255 255 / 83%);
+        font-size: 18px;
+      }
+
+      .wind-direction {
+        font-size: clamp(39px, 5.3vw, 53px);
+        line-height: 1.25;
+        white-space: nowrap;
+      }
+
+      .wind-speed {
+        font-size: clamp(24px, 3.8vw, 35px);
+        white-space: nowrap;
+      }
+
+      .indicators {
+        display: grid;
+        justify-items: center;
+        gap: 8px;
+      }
+
+      .indicator {
+        width: min(100%, 96px);
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        background: rgb(8 46 79 / 54%);
+      }
+
+      .indicator img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .indicator-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        clip-path: inset(50%);
+      }
+
+      .data-status {
+        margin: 22px 0 0;
+        color: rgb(255 255 255 / 70%);
+        font-size: 13px;
+        text-align: right;
+      }
+
+      .data-status[data-state="error"] {
+        color: #ffe3b0;
+      }
+
+      @media (max-width: 700px) {
+        body {
+          padding: 20px 14px;
+        }
+
+        .weather-card {
+          padding: clamp(22px, 6vw, 32px);
+          border-radius: 26px;
+        }
+
+        .weather-grid {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          gap: 20px 16px;
+        }
+
+        .weather-icon-wrap {
+          justify-self: center;
+          width: min(100%, 174px);
+        }
+
+        .measurements {
+          justify-self: center;
+        }
+
+        .wind {
+          min-height: 138px;
+          padding-left: 14px;
+        }
+
+        .indicators {
+          grid-column: 2;
+          grid-row: 3;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          justify-items: center;
+          gap: 10px;
+        }
+
+        .indicator {
+          width: min(100%, 96px);
+        }
+
+        .data-status {
+          margin-top: 18px;
+        }
+      }
+
+      @media (max-width: 380px) {
+        body {
+          padding: 14px 10px;
+        }
+
+        .weather-card {
+          padding: 20px 16px;
+        }
+
+        .weather-grid {
+          column-gap: 10px;
+        }
+
+        .temperature {
+          font-size: 52px;
+        }
+
+        .humidity {
+          font-size: 42px;
+        }
+
+        .wind-direction {
+          font-size: 36px;
+        }
+
+        .wind-speed {
+          font-size: 23px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="weather-card" aria-label="澳門即時天氣">
+      <div class="weather-grid">
+        <p class="date" id="date">正在載入日期…</p>
+
+        <section class="weather-icon-wrap" aria-label="天氣狀況">
+          <div class="weather-icon-tile">
+            <img class="weather-icon" id="weather-icon" alt="" hidden>
+          </div>
+          <span class="weather-description" id="weather-description">—</span>
+        </section>
+
+        <section class="measurements" aria-label="溫度及濕度">
+          <div class="temperature-line">
+            <span class="temperature" id="temperature">—</span>
+            <span class="unit">°C</span>
+          </div>
+          <span class="feels-like" id="feels-like">—</span>
+          <div class="humidity-line">
+            <span class="humidity" id="humidity">—</span>
+            <span class="humidity-unit">%</span>
+          </div>
+        </section>
+
+        <section class="wind" aria-label="風況">
+          <span class="wind-label">風速</span>
+          <span class="wind-direction" id="wind-direction">—</span>
+          <span class="wind-speed" id="wind-speed">— km/h</span>
+        </section>
+
+        <section class="indicators" aria-label="紫外線及空氣質量">
+          <div class="indicator">
+            <img id="uv-icon" alt="" hidden>
+            <span class="indicator-label" id="uv-label">紫外線指數</span>
+          </div>
+          <div class="indicator">
+            <img id="air-quality-icon" alt="" hidden>
+            <span class="indicator-label" id="air-quality-label">空氣質量</span>
+          </div>
+        </section>
+      </div>
+      <p class="data-status" id="data-status" role="status" aria-live="polite">
+        正在載入澳門氣象局資料…
+      </p>
+    </main>
+
+    <script>
+      const byId = (id) => document.getElementById(id);
+
+      function updateDate() {
+        const now = new Date();
+        const date = new Intl.DateTimeFormat("zh-Hant-MO", {
+          timeZone: "Asia/Macau",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }).format(now);
+        const weekday = new Intl.DateTimeFormat("zh-Hant-MO", {
+          timeZone: "Asia/Macau",
+          weekday: "long",
+        }).format(now);
+        byId("date").textContent = `${date} ${weekday}`;
+      }
+
+      function setImage(id, url, alt) {
+        const image = byId(id);
+        image.src = url;
+        image.alt = alt;
+        image.hidden = false;
+      }
+
+      function displayWeather(data) {
+        setImage("weather-icon", data.weather.iconUrl, data.weather.description);
+        byId("weather-description").textContent = data.weather.description;
+        byId("temperature").textContent = data.weather.temperature;
+        byId("feels-like").textContent = data.weather.feelsLike;
+        byId("humidity").textContent = data.weather.humidity;
+        byId("wind-direction").textContent = data.weather.windDirection;
+        byId("wind-speed").textContent = `${data.weather.windSpeed} km/h`;
+        setImage("uv-icon", data.uv.iconUrl, "紫外線指數");
+        setImage(
+          "air-quality-icon",
+          data.airQuality.iconUrl,
+          data.airQuality.description,
+        );
+        byId("uv-label").textContent = "紫外線指數";
+        byId("air-quality-label").textContent = data.airQuality.description;
+
+        const publishedAt = data.weather.publishedAt;
+        byId("data-status").textContent = publishedAt
+          ? `澳門氣象局 · 資料時間 ${publishedAt}`
+          : "澳門氣象局 · 即時天氣資料";
+        byId("data-status").dataset.state = "ready";
+      }
+
+      async function loadWeather() {
+        const status = byId("data-status");
+        try {
+          const response = await fetch(`weather.json?t=${Date.now()}`, {
+            cache: "no-store",
+          });
+          if (!response.ok) {
+            throw new Error(`天氣資料回應錯誤 (${response.status})`);
+          }
+          displayWeather(await response.json());
+        } catch (error) {
+          console.error("無法載入天氣資料：", error);
+          status.textContent = "目前無法載入天氣資料，請稍後再試。";
+          status.dataset.state = "error";
+        }
+      }
+
+      updateDate();
+      loadWeather();
+      window.setInterval(loadWeather, 5 * 60 * 1000);
+    </script>
+  </body>
+</html>
