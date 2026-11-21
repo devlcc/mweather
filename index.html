@@ -56,13 +56,14 @@
 
       .weather-grid {
         display: grid;
-        grid-template-columns:
-          minmax(128px, 0.95fr)
-          minmax(132px, 0.9fr)
-          minmax(190px, 1.15fr)
-          minmax(82px, 0.55fr);
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 0.9fr)
+          minmax(0, 1.15fr) minmax(0, 0.6fr);
         align-items: center;
-        gap: clamp(18px, 3vw, 34px);
+        gap: clamp(4px, 2vw, 20px);
+      }
+
+      .weather-grid > * {
+        min-width: 0;
       }
 
       .weather-icon-wrap {
@@ -91,12 +92,12 @@
       .weather-description {
         min-height: 1.4em;
         color: rgb(255 255 255 / 82%);
-        font-size: 19px;
+        font-size: clamp(9px, 2.8vw, 19px);
       }
 
       .measurements {
         display: grid;
-        gap: 12px;
+        gap: clamp(4px, 1.5vw, 12px);
       }
 
       .temperature-line {
@@ -107,27 +108,28 @@
       }
 
       .temperature {
-        font-size: clamp(54px, 8vw, 76px);
+        font-size: clamp(20px, 8vw, 76px);
         font-weight: 600;
         line-height: 0.98;
         letter-spacing: -0.06em;
       }
 
       .unit {
-        padding-top: 5px;
-        font-size: clamp(23px, 3.3vw, 31px);
+        padding-top: clamp(2px, 0.7vw, 5px);
+        font-size: clamp(11px, 3.3vw, 31px);
         font-weight: 600;
       }
 
       .feels-like {
         justify-self: start;
-        padding: 4px 16px 5px;
+        padding: clamp(2px, 0.55vw, 4px) clamp(4px, 2vw, 16px);
         border-radius: 20px;
         background: #ffad19;
         color: #263b32;
-        font-size: 16px;
+        font-size: clamp(9px, 2.4vw, 16px);
         font-weight: 700;
         line-height: 1.35;
+        white-space: nowrap;
       }
 
       .humidity-line {
@@ -138,48 +140,50 @@
       }
 
       .humidity {
-        font-size: clamp(43px, 6vw, 63px);
+        font-size: clamp(18px, 6vw, 63px);
         font-weight: 600;
         line-height: 0.98;
         letter-spacing: -0.055em;
       }
 
       .humidity-unit {
-        padding-top: 2px;
-        font-size: clamp(25px, 3.5vw, 34px);
+        padding-top: clamp(1px, 0.3vw, 2px);
+        font-size: clamp(11px, 3.5vw, 34px);
         font-weight: 600;
       }
 
       .wind {
-        min-height: 164px;
+        min-height: clamp(90px, 16vw, 164px);
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 8px;
-        padding-left: clamp(18px, 3vw, 32px);
+        gap: clamp(3px, 0.8vw, 8px);
+        padding-left: clamp(5px, 2vw, 32px);
         border-left: 1px solid rgb(255 255 255 / 75%);
       }
 
       .wind-label {
         color: rgb(255 255 255 / 83%);
-        font-size: 18px;
+        font-size: clamp(9px, 2.5vw, 18px);
       }
 
       .wind-direction {
-        font-size: clamp(39px, 5.3vw, 53px);
+        font-size: clamp(14px, 5.3vw, 53px);
         line-height: 1.25;
         white-space: nowrap;
       }
 
-      .wind-speed {
-        font-size: clamp(24px, 3.8vw, 35px);
+      .wind-speed,
+      .wind-level {
+        font-size: clamp(10px, 3.8vw, 35px);
+        line-height: 1.2;
         white-space: nowrap;
       }
 
       .indicators {
         display: grid;
         justify-items: center;
-        gap: 8px;
+        gap: clamp(2px, 1vw, 8px);
       }
 
       .indicator {
@@ -228,37 +232,6 @@
           border-radius: 26px;
         }
 
-        .weather-grid {
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-          gap: 20px 16px;
-        }
-
-        .weather-icon-wrap {
-          justify-self: center;
-          width: min(100%, 174px);
-        }
-
-        .measurements {
-          justify-self: center;
-        }
-
-        .wind {
-          min-height: 138px;
-          padding-left: 14px;
-        }
-
-        .indicators {
-          grid-column: 2;
-          grid-row: 3;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          justify-items: center;
-          gap: 10px;
-        }
-
-        .indicator {
-          width: min(100%, 96px);
-        }
-
         .data-status {
           margin-top: 18px;
         }
@@ -274,23 +247,7 @@
         }
 
         .weather-grid {
-          column-gap: 10px;
-        }
-
-        .temperature {
-          font-size: 52px;
-        }
-
-        .humidity {
-          font-size: 42px;
-        }
-
-        .wind-direction {
-          font-size: 36px;
-        }
-
-        .wind-speed {
-          font-size: 23px;
+          gap: 4px;
         }
       }
     </style>
@@ -323,6 +280,7 @@
           <span class="wind-label">風速</span>
           <span class="wind-direction" id="wind-direction">—</span>
           <span class="wind-speed" id="wind-speed">— km/h</span>
+          <span class="wind-level" id="wind-level">—</span>
         </section>
 
         <section class="indicators" aria-label="紫外線及空氣質量">
@@ -374,6 +332,7 @@
         byId("humidity").textContent = data.weather.humidity;
         byId("wind-direction").textContent = data.weather.windDirection;
         byId("wind-speed").textContent = `${data.weather.windSpeed} km/h`;
+        byId("wind-level").textContent = data.weather.windLevel;
         setImage("uv-icon", data.uv.iconUrl, "紫外線指數");
         setImage(
           "air-quality-icon",

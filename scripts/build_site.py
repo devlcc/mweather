@@ -66,6 +66,9 @@ def main() -> None:
                 weather, "./WindDirection/WindDescription"
             ),
             "windSpeed": required_text(weather, "./WindSpeed/Value"),
+            "windLevel": required_text(
+                weather, "./WindSpeed/WindSpeedDescription"
+            ),
             "publishedAt": required_text(
                 weather_xml, "./System/SysPubdate"
             ),
